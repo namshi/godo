@@ -116,24 +116,37 @@ func addTargetFromServer(targets map[string]config.Server, target string, cfg co
 	}
 }
 
-// Runs one of the commands stored in the config
-// file.
+// Returns a list of targets on which we
+// should execute the given command, based
+// on the target specified by the user.
 //
-// Here we will try to figure out if we need to execute
-// it on a single server or a group of servers, and
-// schedule the commands.
-func runCommand(command config.Command, cfg config.Config, target string) {
-	fmt.Printf("\nCommand: '%s'", info(command.Exec))
+// If the user specifies a target, we use that
+// one; if there is no user-specified target
+// we simply look at the configuration of the
+// command.
+//
+// A target can be a server or a group of servers.
+func getTargets(command config.Command, cfg config.Config, target string) (map[string]config.Server) {
 	targets := make(map[string]config.Server)
 
-	if target != "" {
+	if target == "all" {
+	  targets = cfg.Servers
+	} else if target != "" {
 		addTargetFromGroups(targets, target, cfg)
 		addTargetFromServer(targets, target, cfg)
 	} else {
 		addTargetFromGroups(targets, command.Target, cfg)
 		addTargetFromServer(targets, command.Target, cfg)
 	}
+	
+	return targets
+}
 
+// Runs one of the commands stored in the config
+// file.
+func runCommand(command config.Command, cfg config.Config, target string) {
+	fmt.Printf("\nCommand: '%s'", info(command.Exec))
+  targets := getTargets(command, cfg, target)
 	targetNames := []string{}
 
 	for serverName, _ := range targets {

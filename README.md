@@ -136,6 +136,10 @@ godo uptime @ db
 godo uptime@db
 ```
 
+Godo provides a special group, called `all`, that
+represents all servers, so you can always run
+something like `godo uptime @ all`.
+
 ## Additional documentation
 
 You can run the docs through `godoc -http=:6060 -path=.`.

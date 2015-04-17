@@ -94,7 +94,7 @@ func validate(c *Config) {
 	}
 
 	if c.Timeout == 0 {
-		c.Timeout = 5
+		c.Timeout = 30
 	}
 }
 
