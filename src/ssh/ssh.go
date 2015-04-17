@@ -26,15 +26,27 @@ type Config struct {
 	Timeout  time.Duration
 }
 
+func handleError(err error) {
+		if err != nil {
+			panic(err)
+		}
+}
+
+// Creates a new SSH client based on the
+// given configuration.
 func CreateClient(config *Config) *ssh.SSHForwardingClient {
 	hostfile := ssh.NewHostKeyFile(config.Hostfile)
 	checker := ssh.NewHostKeyChecker(hostfile)
 
-	client, err := ssh.NewTunnelledSSHClient(config.User, config.Tunnel, config.Address, checker, true, config.Timeout)
+	if config.Tunnel != "" {
+		client, err := ssh.NewTunnelledSSHClient(config.User, config.Tunnel, config.Address, checker, true, config.Timeout)
+    handleError(err)
 
-	if err != nil {
-		panic(err)
+		return client
 	}
+
+	client, err := ssh.NewSSHClient(config.User, config.Address, checker, true, config.Timeout)
+  handleError(err)
 
 	return client
 }
