@@ -134,17 +134,3 @@ Run the tests with:
 ```
 fig run godo go test ./...
 ```
-
-## Todo
-
-* add `login` command to put all hosts in the `known_hosts`
-* remove TODO
-* custom SSH timeout
-* implement @ operator to run command on a specific server
-* add releases for a few platforms
-* do not require ssh tunneling
-* @all (--all)
-* tests
-  * config parsing
-* autocomplete
-* dont panic if you cant connect to via SSH or cant resolve an address
