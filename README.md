@@ -24,7 +24,7 @@ USAGE:
    godo [global options] command [command options] [arguments...]
 
 VERSION:
-   unstable
+   X.Y.Z
 
 AUTHOR(S): 
    
@@ -122,10 +122,10 @@ fig run godo go test ./...
 * ~~implement command on single host~~
 * ~~implement groups~~
 * ~~check how it behaves with tailing~~ *uber-fine!*
+* ~~read config file from home (godo.yml)~~
 * check what happens if we dont provide any hostfile
 * remove TODO
 * custom SSH timeout
-* read config file from home (godo.yml)
 * implement @ operator to run command on a specific server
 * add releases for a few platforms
 * do not require ssh tunneling
@@ -133,3 +133,4 @@ fig run godo go test ./...
 * tests
   * config parsing
 * autocomplete
+* dont panic if you cant connect to via SSH or cant resolve an address

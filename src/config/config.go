@@ -6,6 +6,11 @@ package config
 import (
 	yaml "gopkg.in/yaml.v2"
 	"io/ioutil"
+	"log"
+	"os"
+	"os/user"
+	"path"
+	"strings"
 )
 
 // Represents a server on which
@@ -35,18 +40,35 @@ type Config struct {
 	Groups   map[string][]string
 }
 
+// Tries to read the contents of the file
+// trying to locate it in different  directories.
+// ie. ~/godo.yml | ./godo.yml
+func getFileContents(file string) []byte {
+	user, _ := user.Current()
+	wd, _ := os.Getwd()
+	homePath := path.Join(user.HomeDir, file)
+	wdPath := path.Join(wd, file)
+	paths := []string{wdPath, homePath, file}
+
+	for _, path := range paths {
+		content, err := ioutil.ReadFile(path)
+
+		if err == nil {
+			return content
+		}
+	}
+
+	log.Fatalf("Unable to read config file (tried %s)", strings.Join(paths, ", "))
+	return []byte{}
+}
+
 // Parses a configuration file and returns
 // a Go structure that represents it.
 func Parse(file string) Config {
-	content, err := ioutil.ReadFile(file)
-
-	if err != nil {
-		panic(err)
-	}
-
+	content := getFileContents(file)
 	c := Config{}
 
-	err = yaml.Unmarshal([]byte(content), &c)
+	err := yaml.Unmarshal([]byte(content), &c)
 
 	if err != nil {
 		panic(err)

@@ -26,7 +26,7 @@ func newApp() *cli.App {
 // on the app.
 func addCommands(app *cli.App) {
 	app.Action = func(c *cli.Context) {
-		configFile := "./config.yml"
+		configFile := "./godo.yml"
 
 		cfg := config.Parse(configFile)
 		cmd := c.Args().First()
