@@ -19,7 +19,7 @@ func newApp() *cli.App {
 
 	app.Name = "godo"
 	app.Usage = "Stop SSHing into your server and run the same old commands. Automate. Automate. Automate."
-	app.Version = "unstable"
+	app.Version = "v1.0.0"
 
 	return app
 }
