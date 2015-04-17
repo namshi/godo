@@ -1,0 +1,7 @@
+godo:
+  build: .
+  command: gin main.go
+  volumes:
+   - .:/src
+  environment:
+    GOPATH: /go/:/

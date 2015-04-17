@@ -1,0 +1,22 @@
+hostfile: "/home/YOU/.ssh/known_hosts"
+servers:
+  web:
+    address: "xxx.xxx.xx.xxx:22"
+    user:    "me"
+  db:
+    address: "xxx.xxx.xx.xxx:22"
+    tunnel:  "tunnel.yourcompany.com:22"
+    user:    "me"
+groups:
+  all: [web, db]
+commands:
+  uptime:
+    target:       all
+    exec:         "uptime"  
+    description:  "Retrieves uptime info for all machines"  
+  slow-queries:
+    target: db
+    exec: "mysql-log -n 10"
+  nginx-logs:
+    target: web
+    exec: "sudo tail -10f /var/log/nginx/access.log"
