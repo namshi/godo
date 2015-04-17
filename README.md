@@ -47,29 +47,6 @@ Executing on servers web, db
 ...
 ```
 
-### Compiling
-
-Alternatively, you can run and compile godo on
-your own machine with a simple `go build -o godo main.go`.
-
-At the same time, we provide a simple docker container
-to run and compile it so that you don't have to
-go to crazy if you don't have Go running on your
-system:
-
-```
-git clone https://github.com/namshi/godo.git
-
-cd godo
-
-docker-compose run godo gox --output=build/{{.OS}}_{{.Arch}}/{{.Dir}}
-
-./godo
-```
-
-The above command will compile the `godo` executables
-(for various platforms) in the `build` folder.
-
 ## Usage
 
 Create a `godo.yml` file and put it in your home directory:
@@ -149,10 +126,31 @@ You can run the docs through `godoc -http=:6060 -path=.`.
 Currently all servers need to be in your `known_hosts` file (ie. you
 have to have SSHed into them at least once before using them with godo).
 
-## Tests
+## Compiling
 
-Run the tests with:
+Alternatively, you can run and compile godo on
+your own machine with a simple `go build -o godo main.go`.
+
+At the same time, we provide a simple docker container
+to run and compile it so that you don't have to
+go to crazy if you don't have Go running on your
+system:
 
 ```
-docker-compose run godo go test ./...
+git clone https://github.com/namshi/godo.git
+
+cd godo
+
+docker-compose run godo gox --output=build/{{.OS}}_{{.Arch}}/{{.Dir}}
+
+./godo
 ```
+
+The above command will compile the `godo` executables
+(for various platforms) in the `build` folder.
+
+We use a simple makefile to create new releases and
+yoou can probably do the same: just run `make` in the
+root of the repo and check the `build` folder. This
+requires that `docker` and `docker-compose` are installed
+on your system.
