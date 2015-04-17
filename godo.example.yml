@@ -1,4 +1,3 @@
-hostfile: "/home/YOU/.ssh/known_hosts"
 servers:
   web:
     address: "xxx.xxx.xx.xxx:22"
@@ -20,3 +19,5 @@ commands:
   nginx-logs:
     target: web
     exec: "sudo tail -10f /var/log/nginx/access.log"
+hostfile: "/home/YOU/.ssh/known_hosts"
+timeout: 2

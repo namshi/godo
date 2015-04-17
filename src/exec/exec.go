@@ -27,7 +27,7 @@ func ExecuteRemoteCommands(command string, servers map[string]config.Server, cfg
 	for server, serverConfig := range servers {
 		go func(server string, serverConfig config.Server) {
 			c := &ssh.Config{Address: serverConfig.Address, Alias: server, Tunnel: serverConfig.Tunnel, User: serverConfig.User, Hostfile: cfg.Hostfile}
-			c.Timeout = time.Duration(60) * time.Second
+			c.Timeout = time.Duration(cfg.Timeout) * time.Second
 			session, _ := ssh.CreateClient(c).NewSession()
 			ExecuteRemoteCommand(command, session, server)
 			defer wg.Done()

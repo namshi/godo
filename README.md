@@ -74,7 +74,7 @@ The above command will compile the `godo` executables
 
 Create a `godo.yml` file and put it in your home directory:
 
-``` godo.yml
+``` yaml
 servers:
   web:
     address: "xxx.xxx.xx.xxx:22"
@@ -97,6 +97,7 @@ commands:
     target: web
     exec: "sudo tail -10f /var/log/nginx/access.log"
 hostfile: "/home/YOU/.ssh/known_hosts"
+timeout: 2
 ```
 
 There are a few sections to keep in mind:
@@ -122,6 +123,10 @@ configuration file with the `-c` or `--config` flags:
 godo -c ./../my-config.yml mysql-log
 ```
 
+## Additional documentation
+
+You can run the docs through `godoc -http=:6060 -path=.`.
+
 ## Gotchas
 
 Currently all servers need to be in your `known_hosts` file (ie. you
@@ -132,5 +137,5 @@ have to have SSHed into them at least once before using them with godo).
 Run the tests with:
 
 ```
-fig run godo go test ./...
+docker-compose run godo go test ./...
 ```

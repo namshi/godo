@@ -16,28 +16,51 @@ import (
 // Represents a server on which
 // we can connect to.
 type Server struct {
+	// The IP address of the server
 	Address string
-	User    string
-	Tunnel  string
+	// The user that will login
+	// into the server
+	User string
+	// An optional host that will
+	// be used as SSH tunnel to the
+	// current server
+	Tunnel string
 }
 
 // Represents a command
 // to run on a server or
 // group of servers.
 type Command struct {
-	Target      string
-	Exec        string
+	// The target on which we are going
+	// to execute the current command: can
+	// be a server or a group
+	Target string
+	// A string representing the command
+	// to execute
+	Exec string
+	// A description of the command,
+	// used in the CLI
 	Description string
 }
 
 // Represents the whole configuration
 // file.
 type Config struct {
+	// The file to use to verify
+	// known hosts
 	Hostfile string
-	Servers  map[string]Server
+	// Timeout of the SSH connections
+	Timeout int
+	// List of servers
+	Servers map[string]Server
+	// List of commands
 	Commands map[string]Command
-	Raw      string
-	Groups   map[string][]string
+	// List of groups
+	Groups map[string][]string
+	// The raw string containing the
+	// whole configuration, in YAML
+	// format
+	Raw string
 }
 
 // Tries to read the contents of the file
@@ -68,6 +91,10 @@ func getFileContents(file string) []byte {
 func validate(c *Config) {
 	if c.Hostfile == "" {
 		c.Hostfile = path.Join(os.TempDir(), "known_hosts_godo")
+	}
+
+	if c.Timeout == 0 {
+		c.Timeout = 5
 	}
 }
 

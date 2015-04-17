@@ -5,10 +5,10 @@ import (
 	"os"
 	"strings"
 
-	"github.com/namshi/godo/src/config"
-	"github.com/namshi/godo/src/exec"
 	"github.com/codegangsta/cli"
 	"github.com/mgutz/ansi"
+	"github.com/namshi/godo/src/config"
+	"github.com/namshi/godo/src/exec"
 )
 
 const defaultConfigFile = "./godo.yml"
