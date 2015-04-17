@@ -4,7 +4,7 @@
 package exec
 
 import (
-	golog "log"
+	gossh "github.com/coreos/fleet/Godeps/_workspace/src/golang.org/x/crypto/ssh"
 	"sync"
 	"time"
 
@@ -25,13 +25,13 @@ func ExecuteRemoteCommands(command string, servers map[string]config.Server, cfg
 	wg.Add(len(servers))
 
 	for server, serverConfig := range servers {
-		c := &ssh.Config{Address: serverConfig.Address, Alias: server, Tunnel: serverConfig.Tunnel, User: serverConfig.User, Hostfile: cfg.Hostfile}
-		c.Timeout = time.Duration(10) * time.Second
-
-		go func() {
+		go func(server string, serverConfig config.Server) {
+			c := &ssh.Config{Address: serverConfig.Address, Alias: server, Tunnel: serverConfig.Tunnel, User: serverConfig.User, Hostfile: cfg.Hostfile}
+			c.Timeout = time.Duration(60) * time.Second
+			session, _ := ssh.CreateClient(c).NewSession()
+			ExecuteRemoteCommand(command, session, server)
 			defer wg.Done()
-			ExecuteRemoteCommand(command, c)
-		}()
+		}(server, serverConfig)
 	}
 
 	wg.Wait()
@@ -39,15 +39,8 @@ func ExecuteRemoteCommands(command string, servers map[string]config.Server, cfg
 
 // Executes the given command through SSH,
 // connecting with the given config.
-func ExecuteRemoteCommand(command string, c *ssh.Config) {
-	session, err := ssh.CreateSession(c)
-
-	if err != nil {
-		golog.Printf("Failed to create SSH session on %s", c.Address)
-		return
-	}
-
-	stdout, stderr := log.GetRemoteLoggers(c.Alias)
+func ExecuteRemoteCommand(command string, session *gossh.Session, server string) {
+	stdout, stderr := log.GetRemoteLoggers(server)
 	session.Stdout = stdout
 	session.Stderr = stderr
 

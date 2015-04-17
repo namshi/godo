@@ -118,11 +118,6 @@ fig run godo go test ./...
 
 ## Todo
 
-* ~~add config~~
-* ~~implement command on single host~~
-* ~~implement groups~~
-* ~~check how it behaves with tailing~~ *uber-fine!*
-* ~~read config file from home (godo.yml)~~
 * check what happens if we dont provide any hostfile
 * remove TODO
 * custom SSH timeout

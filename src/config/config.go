@@ -62,6 +62,15 @@ func getFileContents(file string) []byte {
 	return []byte{}
 }
 
+// Validates the parsed configuration,
+// providing default values if anything
+// is missing.
+func validate(c *Config) {
+	if c.Hostfile == "" {
+		c.Hostfile = path.Join(os.TempDir(), "known_hosts_godo")
+	}
+}
+
 // Parses a configuration file and returns
 // a Go structure that represents it.
 func Parse(file string) Config {
@@ -75,6 +84,7 @@ func Parse(file string) Config {
 	}
 
 	c.Raw = string(content)
+	validate(&c)
 
 	return c
 }

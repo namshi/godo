@@ -9,7 +9,6 @@ package ssh
 import (
 	"time"
 
-	gossh "github.com/coreos/fleet/Godeps/_workspace/src/golang.org/x/crypto/ssh"
 	ssh "github.com/coreos/fleet/ssh"
 )
 
@@ -27,19 +26,15 @@ type Config struct {
 	Timeout  time.Duration
 }
 
-// Creates a new SSH session to run
-// commands with the given config
-// parameters.
-func CreateSession(config *Config) (*gossh.Session, error) {
+func CreateClient(config *Config) *ssh.SSHForwardingClient {
 	hostfile := ssh.NewHostKeyFile(config.Hostfile)
 	checker := ssh.NewHostKeyChecker(hostfile)
 
-	if config.Tunnel != "" {
-		client, _ := ssh.NewTunnelledSSHClient(config.User, config.Tunnel, config.Address, checker, true, config.Timeout)
+	client, err := ssh.NewTunnelledSSHClient(config.User, config.Tunnel, config.Address, checker, true, config.Timeout)
 
-		return client.NewSession()
+	if err != nil {
+		panic(err)
 	}
 
-	// TODO: fix this
-	return nil, nil
+	return client
 }
