@@ -11,8 +11,10 @@ RUN go get github.com/mgutz/ansi
 RUN go get github.com/kvz/logstreamer/src/pkg/logstreamer/
 RUN go get github.com/codegangsta/cli
 RUN go get gopkg.in/yaml.v2
+RUN go get github.com/mitchellh/gox
+RUN gox -build-toolchain
 
-COPY . /src
-WORKDIR /src
+COPY . /go/src/github.com/namshi/godo/
+WORKDIR /go/src/github.com/namshi/godo/
 
-CMD go build -o godo main.go
+CMD godo gox --output=build/{{.OS}}_{{.Arch}}/{{.Dir}}

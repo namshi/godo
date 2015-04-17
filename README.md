@@ -62,13 +62,13 @@ git clone https://github.com/namshi/godo.git
 
 cd godo
 
-docker-compose run web go build -o godo main.go
+docker-compose run godo gox --output=build/{{.OS}}_{{.Arch}}/{{.Dir}}
 
 ./godo
 ```
 
-The above command will compile the `godo` executable
-in the current folder.
+The above command will compile the `godo` executables
+(for various platforms) in the `build` folder.
 
 ## Usage
 

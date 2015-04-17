@@ -1,7 +1,7 @@
 package main
 
 import (
-	"./src/cli"
+	"github.com/namshi/godo/src/cli"
 )
 
 // Start the fun!

@@ -8,9 +8,9 @@ import (
 	"sync"
 	"time"
 
-	"./../config"
-	"./../log"
-	"./../ssh"
+	"github.com/namshi/godo/src/config"
+	"github.com/namshi/godo/src/log"
+	"github.com/namshi/godo/src/ssh"
 )
 
 // Executes the given command on a series

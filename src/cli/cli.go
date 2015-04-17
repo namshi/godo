@@ -5,8 +5,8 @@ import (
 	"os"
 	"strings"
 
-	"./../config"
-	"./../exec"
+	"github.com/namshi/godo/src/config"
+	"github.com/namshi/godo/src/exec"
 	"github.com/codegangsta/cli"
 	"github.com/mgutz/ansi"
 )

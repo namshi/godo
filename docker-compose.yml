@@ -2,6 +2,4 @@ godo:
   build: .
   command: gin main.go
   volumes:
-   - .:/src
-  environment:
-    GOPATH: /go/:/
+   - .:/go/src/github.com/namshi/godo/
