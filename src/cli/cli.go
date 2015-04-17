@@ -24,6 +24,21 @@ func newApp() *cli.App {
 	return app
 }
 
+// Parses the arguments that we got
+// from the command line.
+//
+// Arguments have the format command[@target],
+// so something like "uptime" or "uptime @ load-balancer".
+func parseArgs(c *cli.Context) (string, string) {
+	cmds := strings.Split(strings.Replace(strings.Join(c.Args(), ""), " ", "", -1), "@")
+
+	if len(cmds) == 2 {
+		return cmds[0], cmds[1]
+	}
+
+	return cmds[0], ""
+}
+
 // Registers all available commands
 // on the app.
 func addCommands(app *cli.App) {
@@ -35,11 +50,11 @@ func addCommands(app *cli.App) {
 		}
 
 		cfg := config.Parse(configFile)
-		cmd := c.Args().First()
+		cmd, target := parseArgs(c)
 
 		if command, ok := cfg.Commands[cmd]; ok {
-			fmt.Printf("Executing '%s'", colorize(cmd))
-			runCommand(command, cfg)
+			fmt.Printf("Executing '%s'", info(cmd))
+			runCommand(command, cfg, target)
 		} else {
 			printAvailableCommands(app, cfg.Commands, c)
 		}
@@ -71,9 +86,34 @@ func printAvailableCommands(app *cli.App, commands map[string]config.Command, c 
 	app.Command("help").Run(c)
 }
 
-// Colorizes a string for outputting on the CLI
-func colorize(message string) string {
+// Colorizes an info message for outputting on the CLI
+func info(message string) string {
 	return ansi.Color(message, "blue+h")
+}
+
+// Colorizes an error message for outputting on the CLI
+func err(message string) string {
+	return ansi.Color(message, "red+h")
+}
+
+// Adds servers to the list of targets
+// by checking if the specified
+// target was a group: if it was, add
+// all servers in that group.
+func addTargetFromGroups(targets map[string]config.Server, target string, cfg config.Config) {
+	if group, ok := cfg.Groups[target]; ok {
+		for _, server := range group {
+			targets[server] = cfg.Servers[server]
+		}
+	}
+}
+
+// Adds a server to the list of targets if
+// the specified target was a single server.
+func addTargetFromServer(targets map[string]config.Server, target string, cfg config.Config) {
+	if _, ok := cfg.Servers[target]; ok {
+		targets[target] = cfg.Servers[target]
+	}
 }
 
 // Runs one of the commands stored in the config
@@ -82,24 +122,32 @@ func colorize(message string) string {
 // Here we will try to figure out if we need to execute
 // it on a single server or a group of servers, and
 // schedule the commands.
-func runCommand(command config.Command, cfg config.Config) {
-	fmt.Printf("\nCommand: '%s'", colorize(command.Exec))
-	m := make(map[string]config.Server)
+func runCommand(command config.Command, cfg config.Config, target string) {
+	fmt.Printf("\nCommand: '%s'", info(command.Exec))
+	targets := make(map[string]config.Server)
 
-	if group, ok := cfg.Groups[command.Target]; ok {
-		fmt.Printf("\nExecuting on servers %s", colorize(strings.Join(group, ", ")))
-
-		for _, server := range group {
-			m[server] = cfg.Servers[server]
-		}
+	if target != "" {
+		addTargetFromGroups(targets, target, cfg)
+		addTargetFromServer(targets, target, cfg)
 	} else {
-		fmt.Printf("\nExecuting on server %s", colorize(command.Target))
-		m[command.Target] = cfg.Servers[command.Target]
+		addTargetFromGroups(targets, command.Target, cfg)
+		addTargetFromServer(targets, command.Target, cfg)
 	}
 
-	fmt.Println()
-	fmt.Println()
-	exec.ExecuteRemoteCommands(command.Exec, m, cfg)
+	targetNames := []string{}
+
+	for serverName, _ := range targets {
+		targetNames = append(targetNames, serverName)
+	}
+
+	if len(targets) > 0 {
+		fmt.Printf("\nExecuting on server %s", info(strings.Join(targetNames, ", ")))
+		fmt.Println()
+		fmt.Println()
+		exec.ExecuteRemoteCommands(command.Exec, targets, cfg)
+	} else {
+		fmt.Printf(err("\nNo target server / group with the name '%s' could be found, maybe a typo?"), target)
+	}
 }
 
 // Adds global flags to the CLI app.

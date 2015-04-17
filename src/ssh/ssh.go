@@ -27,9 +27,9 @@ type Config struct {
 }
 
 func handleError(err error) {
-		if err != nil {
-			panic(err)
-		}
+	if err != nil {
+		panic(err)
+	}
 }
 
 // Creates a new SSH client based on the
@@ -40,13 +40,13 @@ func CreateClient(config *Config) *ssh.SSHForwardingClient {
 
 	if config.Tunnel != "" {
 		client, err := ssh.NewTunnelledSSHClient(config.User, config.Tunnel, config.Address, checker, true, config.Timeout)
-    handleError(err)
+		handleError(err)
 
 		return client
 	}
 
 	client, err := ssh.NewSSHClient(config.User, config.Address, checker, true, config.Timeout)
-  handleError(err)
+	handleError(err)
 
 	return client
 }

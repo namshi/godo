@@ -123,6 +123,19 @@ configuration file with the `-c` or `--config` flags:
 godo -c ./../my-config.yml mysql-log
 ```
 
+Sometimes, though, you might want to run a command
+that you usually execute on some servers on a
+different server, and you can do it by simply
+specifying it from the command line:
+
+```
+godo uptime @ db
+
+# or
+
+godo uptime@db
+```
+
 ## Additional documentation
 
 You can run the docs through `godoc -http=:6060 -path=.`.
