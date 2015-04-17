@@ -11,6 +11,8 @@ import (
 	"github.com/mgutz/ansi"
 )
 
+const defaultConfigFile = "./godo.yml"
+
 // Creates a new cli app.
 func newApp() *cli.App {
 	app := cli.NewApp()
@@ -26,7 +28,7 @@ func newApp() *cli.App {
 // on the app.
 func addCommands(app *cli.App) {
 	app.Action = func(c *cli.Context) {
-		configFile := "./godo.yml"
+		configFile := defaultConfigFile
 
 		if c.String("config") != configFile {
 			configFile = c.String("config")
@@ -105,7 +107,7 @@ func addFlags(app *cli.App) {
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:   "config, c",
-			Value:  "./godo.yml",
+			Value:  defaultConfigFile,
 			Usage:  "configuration file to be used for running godo",
 			EnvVar: "GODO_CONFIG",
 		},
