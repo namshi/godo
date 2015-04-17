@@ -108,6 +108,20 @@ they have a target (which can be a server or a group), the command that you woul
 and an optional description (which is printed when you do `godo help` or `godo`)
 * `hostfile`: you can omit it, it's used not to always ask you to trust SSH host
 
+Godo will try to read the `godo.yml` configuration file
+from 3 different directories:
+
+* your home
+* the current directory
+* the directory from which the godo executable runs
+
+but you can also specify the path to a different
+configuration file with the `-c` or `--config` flags:
+
+```
+godo -c ./../my-config.yml mysql-log
+```
+
 ## Gotchas
 
 Currently all servers need to be in your `known_hosts` file (ie. you

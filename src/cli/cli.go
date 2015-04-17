@@ -28,6 +28,10 @@ func addCommands(app *cli.App) {
 	app.Action = func(c *cli.Context) {
 		configFile := "./godo.yml"
 
+		if c.String("config") != configFile {
+			configFile = c.String("config")
+		}
+
 		cfg := config.Parse(configFile)
 		cmd := c.Args().First()
 
@@ -101,7 +105,7 @@ func addFlags(app *cli.App) {
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:   "config, c",
-			Value:  "./config.yml",
+			Value:  "./godo.yml",
 			Usage:  "configuration file to be used for running godo",
 			EnvVar: "GODO_CONFIG",
 		},
