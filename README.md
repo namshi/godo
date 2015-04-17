@@ -108,6 +108,11 @@ they have a target (which can be a server or a group), the command that you woul
 and an optional description (which is printed when you do `godo help` or `godo`)
 * `hostfile`: you can omit it, it's used not to always ask you to trust SSH host
 
+## Gotchas
+
+Currently all servers need to be in your `known_hosts` file (ie. you
+have to have SSHed into them at least once before using them with godo).
+
 ## Tests
 
 Run the tests with:
@@ -118,13 +123,13 @@ fig run godo go test ./...
 
 ## Todo
 
-* check what happens if we dont provide any hostfile
+* add `login` command to put all hosts in the `known_hosts`
 * remove TODO
 * custom SSH timeout
 * implement @ operator to run command on a specific server
 * add releases for a few platforms
 * do not require ssh tunneling
-* @all
+* @all (--all)
 * tests
   * config parsing
 * autocomplete
