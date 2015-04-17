@@ -13,7 +13,7 @@ manually.
 ## Installation
 
 Grab the [latest release](https://github.com/namshi/godo/releases)
-and simply run the executable `godo`.
+and simply run the executable:
 
 ```
 ~/projects/namshi/godo (master ✘)✭ ᐅ ./godo
