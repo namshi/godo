@@ -3,6 +3,8 @@
 Remote execution level 9000: **go** and **do**
 stuff.
 
+![example](https://raw.githubusercontent.com/namshi/godo/master/images/gif-example.gif)
+
 `godo` is a very simple yet powerful tool that
 let's you specify a list of repetitive / useful
 commands you run on remote hosts, and run them
