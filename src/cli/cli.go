@@ -126,11 +126,11 @@ func addTargetFromServer(targets map[string]config.Server, target string, cfg co
 // command.
 //
 // A target can be a server or a group of servers.
-func getTargets(command config.Command, cfg config.Config, target string) (map[string]config.Server) {
+func getTargets(command config.Command, cfg config.Config, target string) map[string]config.Server {
 	targets := make(map[string]config.Server)
 
 	if target == "all" {
-	  targets = cfg.Servers
+		targets = cfg.Servers
 	} else if target != "" {
 		addTargetFromGroups(targets, target, cfg)
 		addTargetFromServer(targets, target, cfg)
@@ -138,7 +138,7 @@ func getTargets(command config.Command, cfg config.Config, target string) (map[s
 		addTargetFromGroups(targets, command.Target, cfg)
 		addTargetFromServer(targets, command.Target, cfg)
 	}
-	
+
 	return targets
 }
 
@@ -146,7 +146,7 @@ func getTargets(command config.Command, cfg config.Config, target string) (map[s
 // file.
 func runCommand(command config.Command, cfg config.Config, target string) {
 	fmt.Printf("\nCommand: '%s'", info(command.Exec))
-  targets := getTargets(command, cfg, target)
+	targets := getTargets(command, cfg, target)
 	targetNames := []string{}
 
 	for serverName, _ := range targets {
