@@ -1,16 +1,16 @@
 # godo
 
-Remote execution level 9000: **go** and **do**
+Local and remote execution level 9000: **go** and **do**
 stuff.
 
 ![example](https://raw.githubusercontent.com/namshi/godo/master/images/gif-example.gif)
 
 `godo` is a very simple yet powerful tool that
 let's you specify a list of repetitive / useful
-commands you run on remote hosts, and run them
-with ease, without having to remember them or,
-worse, login on each server and execute them
-manually.
+commands you run on remote hosts or even locally,
+and run them with ease, without having to remember
+them or, even worse, login on each server and
+execute them manually.
 
 ## Installation
 
@@ -75,6 +75,10 @@ commands:
   nginx-logs:
     target: web
     exec: "sudo tail -10f /var/log/nginx/access.log"
+  my-uptime:
+    target:       local
+    exec:         "uptime"  
+    description:  "Retrieves uptime info for the current machine"  
 hostfile: "/home/YOU/.ssh/known_hosts"
 timeout: 2
 ```
@@ -115,9 +119,12 @@ godo uptime @ db
 godo uptime@db
 ```
 
-Godo provides a special group, called `all`, that
-represents all servers, so you can always run
-something like `godo uptime @ all`.
+Godo provides some special groups:
+
+* `all`, represents all servers, so you can
+always run something like `godo uptime @ all`
+* `local`, which references the current machine,
+so you will be running the command locally (`godo uptime @ local`)
 
 ## Additional documentation
 

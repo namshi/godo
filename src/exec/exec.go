@@ -4,7 +4,10 @@
 package exec
 
 import (
+	"fmt"
 	gossh "github.com/coreos/fleet/Godeps/_workspace/src/golang.org/x/crypto/ssh"
+	"github.com/mgutz/ansi"
+	goexec "os/exec"
 	"sync"
 	"time"
 
@@ -13,6 +16,60 @@ import (
 	"github.com/namshi/godo/src/ssh"
 )
 
+// Checks whether a command needs
+// to be run locally or remotely.
+//
+// If the only server is "local"
+// then it means that we need to
+// simply run the command on this
+// local machine.
+func isLocalCommand(servers map[string]config.Server) bool {
+	if len(servers) == 1 {
+		if _, ok := servers["local"]; ok {
+			return true
+		}
+	}
+
+	return false
+}
+
+// Executes the command on the given
+// servers.
+//
+// The main goal of this method is to
+// figure out whether this command needs
+// to be executed locally or remotely,
+// and go ahead with the proper execution
+// strategy.
+func ExecuteCommands(command string, servers map[string]config.Server, cfg config.Config) {
+	if isLocalCommand(servers) {
+		executeLocalCommand(command)
+	} else {
+		executeRemoteCommands(command, servers, cfg)
+	}
+}
+
+// Executes a command locally.
+func executeLocalCommand(command string) {
+	cmd := goexec.Command(command)
+	stdout, stderr := log.GetRemoteLoggers("local")
+	cmd.Stdout = stdout
+	cmd.Stderr = stderr
+
+	err := cmd.Start()
+
+	// failed to spawn new process
+	if err != nil {
+		fmt.Println(ansi.Color(err.Error(), "red+h"))
+	}
+
+	// Failed to execute?
+	err = cmd.Wait()
+	if err != nil {
+		fmt.Println(ansi.Color(err.Error(), "red+h"))
+	}
+}
+
 // Executes the given command on a series
 // of servers.
 //
@@ -20,7 +77,7 @@ import (
 // many commands we need to remotely execute,
 // and stop the execution once everyone is
 // done.
-func ExecuteRemoteCommands(command string, servers map[string]config.Server, cfg config.Config) {
+func executeRemoteCommands(command string, servers map[string]config.Server, cfg config.Config) {
 	var wg sync.WaitGroup
 	wg.Add(len(servers))
 
@@ -29,7 +86,7 @@ func ExecuteRemoteCommands(command string, servers map[string]config.Server, cfg
 			c := &ssh.Config{Address: serverConfig.Address, Alias: server, Tunnel: serverConfig.Tunnel, User: serverConfig.User, Hostfile: cfg.Hostfile}
 			c.Timeout = time.Duration(cfg.Timeout) * time.Second
 			session, _ := ssh.CreateClient(c).NewSession()
-			ExecuteRemoteCommand(command, session, server)
+			executeRemoteCommand(command, session, server)
 			defer wg.Done()
 		}(server, serverConfig)
 	}
@@ -39,7 +96,7 @@ func ExecuteRemoteCommands(command string, servers map[string]config.Server, cfg
 
 // Executes the given command through SSH,
 // connecting with the given config.
-func ExecuteRemoteCommand(command string, session *gossh.Session, server string) {
+func executeRemoteCommand(command string, session *gossh.Session, server string) {
 	stdout, stderr := log.GetRemoteLoggers(server)
 	session.Stdout = stdout
 	session.Stderr = stderr

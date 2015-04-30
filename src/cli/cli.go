@@ -54,6 +54,11 @@ func addCommands(app *cli.App) {
 
 		if command, ok := cfg.Commands[cmd]; ok {
 			fmt.Printf("Executing '%s'", info(cmd))
+
+			if target == "" {
+				target = command.Target
+			}
+
 			runCommand(command, cfg, target)
 		} else {
 			printAvailableCommands(app, cfg.Commands, c)
@@ -125,18 +130,23 @@ func addTargetFromServer(targets map[string]config.Server, target string, cfg co
 // we simply look at the configuration of the
 // command.
 //
-// A target can be a server or a group of servers.
+// A target can be a server, group of servers
+// or a special alias.
+//
+// The supported aliases are
+// - all: will execute the command on all servers
+// - local: instead of executing the command remotely
+//          it will execute it on the current machine
 func getTargets(command config.Command, cfg config.Config, target string) map[string]config.Server {
 	targets := make(map[string]config.Server)
 
 	if target == "all" {
 		targets = cfg.Servers
-	} else if target != "" {
+	} else if target == "local" {
+		targets["local"] = config.Server{}
+	} else {
 		addTargetFromGroups(targets, target, cfg)
 		addTargetFromServer(targets, target, cfg)
-	} else {
-		addTargetFromGroups(targets, command.Target, cfg)
-		addTargetFromServer(targets, command.Target, cfg)
 	}
 
 	return targets
@@ -154,10 +164,10 @@ func runCommand(command config.Command, cfg config.Config, target string) {
 	}
 
 	if len(targets) > 0 {
-		fmt.Printf("\nExecuting on server %s", info(strings.Join(targetNames, ", ")))
+		fmt.Printf("\nExecuting on server '%s'", info(strings.Join(targetNames, ", ")))
 		fmt.Println()
 		fmt.Println()
-		exec.ExecuteRemoteCommands(command.Exec, targets, cfg)
+		exec.ExecuteCommands(command.Exec, targets, cfg)
 	} else {
 		fmt.Printf(err("\nNo target server / group with the name '%s' could be found, maybe a typo?"), target)
 	}
