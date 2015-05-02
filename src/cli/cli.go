@@ -3,6 +3,7 @@ package cli
 import (
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 
 	"github.com/codegangsta/cli"
@@ -73,7 +74,16 @@ func addCommands(app *cli.App) {
 // but somehow if I do it the cli app executes a
 // random command
 func printAvailableCommands(app *cli.App, commands map[string]config.Command, c *cli.Context) {
-	for name, command := range commands {
+	// golang's map iteration is random but we want commands to be printed in alphabetical order
+	// @see http://nathanleclaire.com/blog/2014/04/27/a-surprising-feature-of-golang-that-colored-me-impressed/
+	var names []string
+	for name := range commands {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+
+	for _, name := range names {
+		command := commands[name]
 		description := command.Exec
 
 		if command.Description != "" {
@@ -146,7 +156,6 @@ func getTargets(command config.Command, cfg config.Config, target string) map[st
 		} else if target == "local" {
 			targets["local"] = config.Server{}
 		} else {
-
 			addTargetFromGroups(targets, target, cfg)
 			addTargetFromServer(targets, target, cfg)
 		}
