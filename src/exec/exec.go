@@ -39,6 +39,11 @@ func ExecuteCommands(command string, servers map[string]config.Server, cfg confi
 	wg.Wait()
 }
 
+// Parses a command in format that
+// is suitable for exec.Command().
+//
+// In practice, ls -la /tmp becomes
+// "ls" and ["-la", "/tmp"].
 func parseLocalCommand(command string) (string, []string) {
 	args := strings.Fields(command)
 
