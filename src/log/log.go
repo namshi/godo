@@ -7,7 +7,7 @@ import (
 	golog "log"
 	"os"
 
-	"github.com/kvz/logstreamer/src/pkg/logstreamer"
+	"github.com/kvz/logstreamer"
 	"github.com/mgutz/ansi"
 )
 
