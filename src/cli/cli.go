@@ -140,13 +140,16 @@ func addTargetFromServer(targets map[string]config.Server, target string, cfg co
 func getTargets(command config.Command, cfg config.Config, target string) map[string]config.Server {
 	targets := make(map[string]config.Server)
 
-	if target == "all" {
-		targets = cfg.Servers
-	} else if target == "local" {
-		targets["local"] = config.Server{}
-	} else {
-		addTargetFromGroups(targets, target, cfg)
-		addTargetFromServer(targets, target, cfg)
+	for _, target = range strings.Split(target, ",") {
+		if target == "all" {
+			targets = cfg.Servers
+		} else if target == "local" {
+			targets["local"] = config.Server{}
+		} else {
+
+			addTargetFromGroups(targets, target, cfg)
+			addTargetFromServer(targets, target, cfg)
+		}
 	}
 
 	return targets
