@@ -3,6 +3,7 @@ package cli
 import (
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 
 	"github.com/codegangsta/cli"
@@ -19,7 +20,7 @@ func newApp() *cli.App {
 
 	app.Name = "godo"
 	app.Usage = "Stop SSHing into your server and run the same old commands. Automate. Automate. Automate."
-	app.Version = "v1.2.0"
+	app.Version = "v1.3.0"
 
 	return app
 }
@@ -73,7 +74,16 @@ func addCommands(app *cli.App) {
 // but somehow if I do it the cli app executes a
 // random command
 func printAvailableCommands(app *cli.App, commands map[string]config.Command, c *cli.Context) {
-	for name, command := range commands {
+	// golang's map iteration is random but we want commands to be printed in alphabetical order
+	// @see http://nathanleclaire.com/blog/2014/04/27/a-surprising-feature-of-golang-that-colored-me-impressed/
+	var names []string
+	for name := range commands {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+
+	for _, name := range names {
+		command := commands[name]
 		description := command.Exec
 
 		if command.Description != "" {
@@ -140,13 +150,15 @@ func addTargetFromServer(targets map[string]config.Server, target string, cfg co
 func getTargets(command config.Command, cfg config.Config, target string) map[string]config.Server {
 	targets := make(map[string]config.Server)
 
-	if target == "all" {
-		targets = cfg.Servers
-	} else if target == "local" {
-		targets["local"] = config.Server{}
-	} else {
-		addTargetFromGroups(targets, target, cfg)
-		addTargetFromServer(targets, target, cfg)
+	for _, target = range strings.Split(target, ",") {
+		if target == "all" {
+			targets = cfg.Servers
+		} else if target == "local" {
+			targets["local"] = config.Server{}
+		} else {
+			addTargetFromGroups(targets, target, cfg)
+			addTargetFromServer(targets, target, cfg)
+		}
 	}
 
 	return targets
