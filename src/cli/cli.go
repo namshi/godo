@@ -7,9 +7,9 @@ import (
 	"strings"
 
 	"github.com/codegangsta/cli"
-	"github.com/mgutz/ansi"
 	"github.com/namshi/godo/src/config"
 	"github.com/namshi/godo/src/exec"
+	"github.com/namshi/godo/src/log"
 )
 
 const defaultConfigFile = "./godo.yml"
@@ -54,7 +54,7 @@ func addCommands(app *cli.App) {
 		cmd, target := parseArgs(c)
 
 		if command, ok := cfg.Commands[cmd]; ok {
-			fmt.Printf("Executing '%s'", info(cmd))
+			log.Info("Executing '%s'", cmd)
 
 			if target == "" {
 				target = command.Target
@@ -99,16 +99,6 @@ func printAvailableCommands(app *cli.App, commands map[string]config.Command, c 
 	}
 
 	app.Command("help").Run(c)
-}
-
-// Colorizes an info message for outputting on the CLI
-func info(message string) string {
-	return ansi.Color(message, "blue+h")
-}
-
-// Colorizes an error message for outputting on the CLI
-func err(message string) string {
-	return ansi.Color(message, "red+h")
 }
 
 // Adds servers to the list of targets
@@ -167,7 +157,7 @@ func getTargets(command config.Command, cfg config.Config, target string) map[st
 // Runs one of the commands stored in the config
 // file.
 func runCommand(command config.Command, cfg config.Config, target string) {
-	fmt.Printf("\nCommand: '%s'", info(command.Exec))
+	log.Info("\nCommand: '%s'", command.Exec)
 	targets := getTargets(command, cfg, target)
 	targetNames := []string{}
 
@@ -176,12 +166,29 @@ func runCommand(command config.Command, cfg config.Config, target string) {
 	}
 
 	if len(targets) > 0 {
-		fmt.Printf("\nExecuting on server '%s'", info(strings.Join(targetNames, ", ")))
+		log.Info("\nExecuting on server '%s'", strings.Join(targetNames, ", "))
 		fmt.Println()
 		fmt.Println()
 		exec.ExecuteCommands(command.Exec, targets, cfg)
 	} else {
-		fmt.Printf(err("\nNo target server / group with the name '%s' could be found, maybe a typo?"), target)
+		log.Err("\nNo target server / group with the name '%s' could be found, maybe a typo?", target)
+		printAvailableTargets(cfg)
+	}
+}
+
+// Outputs the available targets,
+// extracted from the config file.
+func printAvailableTargets(cfg config.Config) {
+	log.Err("\n\nAvailable groups are:")
+
+	for groupName, group := range cfg.Groups {
+		log.Err("\n  * %s (%s)", groupName, strings.Join(group, ", "))
+	}
+
+	log.Err("\n\nAvailable servers are:")
+
+	for serverName := range cfg.Servers {
+		log.Err("\n  * %s", serverName)
 	}
 }
 

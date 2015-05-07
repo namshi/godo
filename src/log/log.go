@@ -4,6 +4,7 @@
 package log
 
 import (
+	"fmt"
 	golog "log"
 	"os"
 
@@ -25,4 +26,27 @@ func GetRemoteLoggers(server string) (*logstreamer.Logstreamer, *logstreamer.Log
 	logStreamerErr := logstreamer.NewLogstreamer(errLogger, " ", false)
 
 	return logStreamerOut, logStreamerErr
+}
+
+// Prints an error message
+func Err(message string, args ...string) {
+	list := []interface{}{}
+
+	for _, val := range args {
+		list = append(list, val)
+	}
+
+	fmt.Printf(ansi.Color(message, "red+h"), list...)
+}
+
+// Prints an info message
+func Info(message string, args ...string) {
+	list := []interface{}{}
+
+	for _, val := range args {
+		val = ansi.Color(val, "blue+h")
+		list = append(list, val)
+	}
+
+	fmt.Printf(message, list...)
 }
