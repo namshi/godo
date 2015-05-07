@@ -27,17 +27,21 @@ type Config struct {
 	Timeout  time.Duration
 }
 
-// YOLO!
-func handleError(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
-
 // Creates a new SSH session
 // and attaches a PTY to it.
-func NewSession(config *Config, server string) *gossh.Session {
-	session, _ := createClient(config).NewSession()
+func NewSession(config *Config, server string) (*gossh.Session, error) {
+	client, err := createClient(config, server)
+
+	if err != nil {
+		return nil, err
+	}
+
+	session, err := client.NewSession()
+	
+	if err != nil {
+		return nil, err
+	}
+	
 	modes := gossh.TerminalModes{
 		gossh.ECHO:          0,     // disable echoing
 		gossh.TTY_OP_ISPEED: 14400, // input speed = 14.4kbaud
@@ -45,24 +49,18 @@ func NewSession(config *Config, server string) *gossh.Session {
 	}
 	session.RequestPty("xterm", 80, 40, modes)
 
-	return session
+	return session, nil
 }
 
 // Creates a new SSH client based on the
 // given configuration.
-func createClient(config *Config) *ssh.SSHForwardingClient {
+func createClient(config *Config, server string) (*ssh.SSHForwardingClient, error) {
 	hostfile := ssh.NewHostKeyFile(config.Hostfile)
 	checker := ssh.NewHostKeyChecker(hostfile)
 
 	if config.Tunnel != "" {
-		client, err := ssh.NewTunnelledSSHClient(config.User, config.Tunnel, config.Address, checker, true, config.Timeout)
-		handleError(err)
-
-		return client
+		return ssh.NewTunnelledSSHClient(config.User, config.Tunnel, config.Address, checker, true, config.Timeout)
 	}
 
-	client, err := ssh.NewSSHClient(config.User, config.Address, checker, true, config.Timeout)
-	handleError(err)
-
-	return client
+	return ssh.NewSSHClient(config.User, config.Address, checker, true, config.Timeout)
 }
