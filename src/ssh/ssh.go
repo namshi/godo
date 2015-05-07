@@ -7,6 +7,7 @@
 package ssh
 
 import (
+	gossh "github.com/coreos/fleet/Godeps/_workspace/src/golang.org/x/crypto/ssh"
 	"time"
 
 	ssh "github.com/coreos/fleet/ssh"
@@ -26,15 +27,30 @@ type Config struct {
 	Timeout  time.Duration
 }
 
+// YOLO!
 func handleError(err error) {
 	if err != nil {
 		panic(err)
 	}
 }
 
+// Creates a new SSH session
+// and attaches a PTY to it.
+func NewSession(config *Config, server string) *gossh.Session {
+	session, _ := createClient(config).NewSession()
+	modes := gossh.TerminalModes{
+		gossh.ECHO:          0,     // disable echoing
+		gossh.TTY_OP_ISPEED: 14400, // input speed = 14.4kbaud
+		gossh.TTY_OP_OSPEED: 14400, // output speed = 14.4kbaud
+	}
+	session.RequestPty("xterm", 80, 40, modes)
+
+	return session
+}
+
 // Creates a new SSH client based on the
 // given configuration.
-func CreateClient(config *Config) *ssh.SSHForwardingClient {
+func createClient(config *Config) *ssh.SSHForwardingClient {
 	hostfile := ssh.NewHostKeyFile(config.Hostfile)
 	checker := ssh.NewHostKeyChecker(hostfile)
 

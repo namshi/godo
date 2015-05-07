@@ -5,11 +5,11 @@ package exec
 
 import (
 	"fmt"
-	"github.com/mgutz/ansi"
-	goexec "os/exec"
 	"strings"
 	"sync"
 	"time"
+	goexec "os/exec"
+	"github.com/mgutz/ansi"
 
 	"github.com/namshi/godo/src/config"
 	"github.com/namshi/godo/src/log"
@@ -79,12 +79,12 @@ func executeLocalCommand(command string, done func()) {
 func executeRemoteCommand(command string, server string, serverConfig config.Server, cfg config.Config, done func()) {
 	c := &ssh.Config{Address: serverConfig.Address, Alias: server, Tunnel: serverConfig.Tunnel, User: serverConfig.User, Hostfile: cfg.Hostfile}
 	c.Timeout = time.Duration(cfg.Timeout) * time.Second
-	session, _ := ssh.CreateClient(c).NewSession()
-
+	session := ssh.NewSession(c, server)
 	stdout, stderr := log.GetRemoteLoggers(server)
 	session.Stdout = stdout
 	session.Stderr = stderr
 
 	session.Run(command)
+
 	defer done()
 }
