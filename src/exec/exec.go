@@ -77,12 +77,19 @@ func executeLocalCommand(command string, done func()) {
 func executeRemoteCommand(command string, server string, serverConfig config.Server, cfg config.Config, done func()) {
 	c := &ssh.Config{Address: serverConfig.Address, Alias: server, Tunnel: serverConfig.Tunnel, User: serverConfig.User, Hostfile: cfg.Hostfile}
 	c.Timeout = time.Duration(cfg.Timeout) * time.Second
-	session := ssh.NewSession(c, server)
+	session, err := ssh.NewSession(c, server)
 	stdout, stderr := log.GetRemoteLoggers(server)
+
+	if err != nil {
+		stderr.Write([]byte(err.Error()))
+		done()
+		return
+	}
+
 	session.Stdout = stdout
 	session.Stderr = stderr
 
-	err := session.Run(command)
+	err = session.Run(command)
 
 	if err != nil {
 		stderr.Write([]byte(err.Error()))
