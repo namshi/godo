@@ -4,12 +4,10 @@
 package exec
 
 import (
-	"fmt"
+	goexec "os/exec"
 	"strings"
 	"sync"
 	"time"
-	goexec "os/exec"
-	"github.com/mgutz/ansi"
 
 	"github.com/namshi/godo/src/config"
 	"github.com/namshi/godo/src/log"
@@ -62,13 +60,13 @@ func executeLocalCommand(command string, done func()) {
 
 	// failed to spawn new process
 	if err != nil {
-		fmt.Println(ansi.Color(err.Error(), "red+h"))
+		log.Err(err.Error())
 	}
 
 	// Failed to execute?
 	err = cmd.Wait()
 	if err != nil {
-		fmt.Println(ansi.Color(err.Error(), "red+h"))
+		log.Err(err.Error())
 	}
 
 	defer done()
@@ -84,7 +82,11 @@ func executeRemoteCommand(command string, server string, serverConfig config.Ser
 	session.Stdout = stdout
 	session.Stderr = stderr
 
-	session.Run(command)
+	err := session.Run(command)
+
+	if err != nil {
+		stderr.Write([]byte(err.Error()))
+	}
 
 	defer done()
 }
